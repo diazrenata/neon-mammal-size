@@ -41,8 +41,10 @@ get_rich_density <- function(data){
   bw = mean(sqrt(rich_dens_data$var_log_mass), na.rm = TRUE)
   if (nrow(rich_dens_data) > 1){
     rich_dens = density(rich_dens_data$mean_log_mass, bw = bw, n = 28, from = 0.1, to = 5.5)
+    return(data.frame(logmass = rich_dens$x, prop = rich_dens$y / sum(rich_dens$y)))
+  } else {
+    return(data.frame(logmass = NULL, prop = NULL))
   }
-  data.frame(logmass = rich_dens$x, prop = rich_dens$y / sum(rich_dens$y))
 }
 
 max_size = max(captdata$weight, na.rm = TRUE)
