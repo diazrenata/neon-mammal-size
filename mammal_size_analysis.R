@@ -1,16 +1,22 @@
 # Analysis of individual size distributions of small mammals at NEON
 
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 
 load_data = function(path, pattern) {
   files = dir(path, pattern = pattern, full.names = TRUE)
   tables = lapply(files, read.csv, stringsAsFactors = FALSE)
-  bind_rows(tables)
+  tables_consistent = lapply(tables, select, siteID, date, taxonID, weight)
+  bind_rows(tables_consistent)
 }
 
 # NEON.D01.HARV.DP1.10072.001.mam_capturedata.csv manually deleted due to minor data issue
-captdata = load_data("data", pattern = "*_capturedata.csv")
+# Data from 2015 and 2016 received from NEON. Unzipped and added `_capturedata` to end of
+# file name
+captdata = load_data("data", pattern = "*_capturedata.csv") %>%
+  filter(!is.na(weight))
+captdata = separate(captdata, date, c("year", "mo", "day"), sep = "-")
 
 # split weight axis into 0.2 ln units and calc total energy use of all indivs in those classes
 
@@ -33,6 +39,7 @@ get_rich_density <- function(data){
   size_class_centers = size_class_edges[1:(length(size_class_edges) - 1)] + diff(size_class_edges) / 2
   rich_dens_data = data %>%
     group_by(taxonID) %>%
+    filter(weight != 0) %>% # There is least one zero in GUAN
     summarize(mean_mass = mean(weight, na.rm = TRUE),
               mean_log_mass = mean(log(weight), na.rm = TRUE),
               var_mass = var(weight, na.rm = TRUE),
@@ -49,17 +56,17 @@ get_rich_density <- function(data){
 
 max_size = max(captdata$weight, na.rm = TRUE)
 energy_dist_data = captdata %>%
-  group_by(siteID, nlcdClass) %>%
+  group_by(siteID) %>%
   do(get_energy_dist(., max_size)) %>% 
   rename(prop = energy)
 
 rich_dens = captdata %>%
-  group_by(siteID, nlcdClass) %>%
+  group_by(siteID) %>%
   do(get_rich_density(.))
   
 ggplot(energy_dist_data, aes(x = size_class, y = prop)) + 
   geom_bar(stat = 'identity') +
   geom_line(data = rich_dens, mapping = aes(x = logmass, y = prop)) +
   geom_point(data = rich_dens, mapping = aes(x = logmass, y = prop)) +
-  #facet_grid(siteID~nlcdClass, scales = 'free')
-  facet_wrap(~siteID+nlcdClass, scales = 'free')
+  #facet_grid(year~siteID, scales = 'free')
+  facet_wrap(~siteID, scales = 'free')
