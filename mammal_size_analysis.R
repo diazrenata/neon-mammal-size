@@ -70,3 +70,5 @@ ggplot(energy_dist_data, aes(x = size_class, y = prop)) +
   geom_point(data = rich_dens, mapping = aes(x = logmass, y = prop)) +
   #facet_grid(year~siteID, scales = 'free')
   facet_wrap(~siteID, scales = 'free')
+
+ggsave('results/energy_dist_fig.png')
