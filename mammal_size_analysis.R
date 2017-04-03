@@ -82,3 +82,16 @@ ggplot(energy_rich_data, aes(x = energy_prop, y = rich_prop)) +
   geom_smooth(method = 'gam')
 
 ggsave('results/energy_rich_fig.png')
+
+coeff_dets = energy_rich_data %>%
+  group_by(siteID) %>%
+  summarize(coeff_det = 1 - sum((rich_prop - energy_prop)^2) / sum((rich_prop - mean(rich_prop))^2), corr_coeff = cor(energy_prop, rich_prop))
+
+coeff_det_binned = hist(coeff_dets$coeff_det, breaks = c(min(coeff_dets$coeff_det) - 1, 0, 0.25, 0.5, 0.75, 1))
+coeff_det_data = data.frame(breaks = c(-0.125, 0.125, 0.375, 0.625, 0.875), counts = coeff_det_binned$counts)
+ggplot(coeff_det_data, aes(x = breaks, y = counts)) +
+  geom_bar(stat = 'identity') +
+  xlab('Coefficient of Determination') +
+  ylab('Number of Species')
+
+ggsave('results/coeff_det_fig.png')
