@@ -74,3 +74,11 @@ ggplot(energy_rich_data, aes(x = size_class, y = energy_prop)) +
   facet_wrap(~siteID, scales = 'free')
 
 ggsave('results/energy_dist_fig.png')
+
+ggplot(energy_rich_data, aes(x = energy_prop, y = rich_prop)) +
+  geom_point() +
+  facet_wrap(~siteID) +
+  geom_abline(intercept = 0, slope = 1) +
+  geom_smooth(method = 'gam')
+
+ggsave('results/energy_rich_fig.png')
