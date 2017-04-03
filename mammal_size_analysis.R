@@ -48,9 +48,9 @@ get_rich_density <- function(data){
   bw = mean(sqrt(rich_dens_data$var_log_mass), na.rm = TRUE)
   if (nrow(rich_dens_data) > 1){
     rich_dens = density(rich_dens_data$mean_log_mass, bw = bw, n = 28, from = 0.1, to = 5.5)
-    return(data.frame(logmass = rich_dens$x, prop = rich_dens$y / sum(rich_dens$y)))
+    return(data.frame(size_class = rich_dens$x, rich_prop = rich_dens$y / sum(rich_dens$y)))
   } else {
-    return(data.frame(logmass = NULL, prop = NULL))
+    return(data.frame(size_class = NULL, prop = NULL))
   }
 }
 
@@ -58,16 +58,18 @@ max_size = max(captdata$weight, na.rm = TRUE)
 energy_dist_data = captdata %>%
   group_by(siteID) %>%
   do(get_energy_dist(., max_size)) %>% 
-  rename(prop = energy)
+  rename(energy_prop = energy)
 
 rich_dens = captdata %>%
   group_by(siteID) %>%
   do(get_rich_density(.))
+
+energy_rich_data = inner_join(energy_dist_data, rich_dens, by = c("siteID", "size_class"))
   
-ggplot(energy_dist_data, aes(x = size_class, y = prop)) + 
+ggplot(energy_rich_data, aes(x = size_class, y = energy_prop)) +
   geom_bar(stat = 'identity') +
-  geom_line(data = rich_dens, mapping = aes(x = logmass, y = prop)) +
-  geom_point(data = rich_dens, mapping = aes(x = logmass, y = prop)) +
+  geom_line(data = rich_dens, mapping = aes(x = size_class, y = rich_prop)) +
+  geom_point(data = rich_dens, mapping = aes(x = size_class, y = rich_prop)) +
   #facet_grid(year~siteID, scales = 'free')
   facet_wrap(~siteID, scales = 'free')
 
