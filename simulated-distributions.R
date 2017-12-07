@@ -51,7 +51,7 @@ set.seed(10)
 
 i = 1
 
-while(i <= 500) {  
+while(i < 10) {  
 
     sim_comm = site_species %>%
     mutate(nind = 0) %>%
@@ -61,7 +61,8 @@ while(i <= 500) {
     sim_m = 0
     sim_s = 0
     
-  while(sim_n <= site_n && sim_m <= site_m) {
+   # while(sim_n <= site_n && sim_m <= site_m) {
+    while(sim_n <= site_n) {
     # new individuals belong to any of the 15 species
     new.ind = as.numeric(sample(site_s, size = 1, replace = TRUE, prob = NULL))
     sim_comm[new.ind, 4] <- sim_comm[new.ind, 4] + 1
@@ -116,7 +117,10 @@ ranks = as_tibble(ranks) %>%
 
 keep = comm_specs %>%
   mutate(iteration = row_number()) %>%
-  filter(diff_n < 5, diff_m <5, diff_s == 0)
+  filter(diff_n < 5, diff_s == 0)
+# keep = comm_specs %>%
+#   mutate(iteration = row_number()) %>%
+#   filter(diff_n < 470, diff_m <5, diff_s == 0)
 
 plot_comms = kept_comm[keep$iteration]
 
