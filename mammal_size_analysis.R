@@ -55,7 +55,7 @@ get_rich_density <- function(data){
 }
 
 max_size = max(captdata$weight, na.rm = TRUE)
-energy_dist_data = captdata %>%
+energy_dist_data.2016 = capt.2016 %>%
   group_by(siteID) %>%
   do(get_energy_dist(., max_size)) %>% 
   rename(energy_prop = energy)
@@ -95,3 +95,48 @@ ggplot(coeff_det_data, aes(x = breaks, y = counts)) +
   ylab('Number of Species')
 
 ggsave('results/coeff_det_fig.png')
+
+
+# RMD playing around
+
+# using all years of data, I guess
+# what i want is a rank abundance distribution
+# abundance measured in biomass and energy
+
+# for each site, for each species, sum all weights
+
+capt.biomass = captdata
+capt.biomass = capt.biomass %>% group_by(siteID, taxonID)
+capt.biomass = mutate(capt.biomass, sumwt = sum(weight))
+capt.biomass = select(capt.biomass, siteID, taxonID, sumwt)
+capt.biomass = distinct(capt.biomass)
+capt.biomass = capt.biomass %>% ungroup()
+capt.biomass = capt.biomass %>% group_by(siteID)
+capt.biomass = capt.biomass %>% arrange(desc(sumwt), .by_group = TRUE)
+capt.biomass = mutate(capt.biomass, rank = row_number())
+capt.biomass = capt.biomass %>% ungroup()
+capt.biomass = mutate(capt.biomass, logwt = log(sumwt))
+
+ggplot(capt.biomass, aes(x = rank, y = logwt)) +
+  geom_point() +
+  facet_wrap(~siteID)
+
+
+capt.abundance = captdata %>% 
+  group_by(siteID, taxonID) %>%
+  mutate(abund = n()) %>%
+  select(siteID, taxonID, abund)%>%
+  distinct() %>%
+  ungroup() %>%
+  group_by(siteID) %>%
+  arrange(desc(abund), .by_group = TRUE) %>%
+  mutate(rank.abund = row_number()) %>%
+  ungroup() %>% 
+  mutate(log.abund = log(abund))
+
+
+
+ggplot(capt.abundance, aes(x = rank.abund, y = log.abund)) +
+  geom_point() +
+  facet_wrap(~siteID)
+
