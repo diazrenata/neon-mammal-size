@@ -39,6 +39,12 @@ site_n = as.numeric(nrow(site))
 site_m = sum(site$energy)
 site_s = as.numeric(nrow(site_species))
 
+
+# # I think the species-body size distribution will be important....
+# hist(site_species$mean_wt )
+
+
+
 # try and generate just one fake community, then look into iterations & saving successful runs.
 
 
@@ -51,7 +57,7 @@ set.seed(10)
 
 i = 1
 
-while(i < 10) {  
+while(i < 1000) {  
 
     sim_comm = site_species %>%
     mutate(nind = 0) %>%
@@ -62,7 +68,7 @@ while(i < 10) {
     sim_s = 0
     
    # while(sim_n <= site_n && sim_m <= site_m) {
-    while(sim_n <= site_n) {
+    while(sim_m < site_m) {
     # new individuals belong to any of the 15 species
     new.ind = as.numeric(sample(site_s, size = 1, replace = TRUE, prob = NULL))
     sim_comm[new.ind, 4] <- sim_comm[new.ind, 4] + 1
@@ -117,7 +123,7 @@ ranks = as_tibble(ranks) %>%
 
 keep = comm_specs %>%
   mutate(iteration = row_number()) %>%
-  filter(diff_n < 5, diff_s == 0)
+  filter(diff_n == 1, diff_s == 0)
 # keep = comm_specs %>%
 #   mutate(iteration = row_number()) %>%
 #   filter(diff_n < 470, diff_m <5, diff_s == 0)
@@ -125,7 +131,7 @@ keep = comm_specs %>%
 plot_comms = kept_comm[keep$iteration]
 
 
-for(i in 1:length(plot_comms)) {
+for(i in 1:10) {
   thisone = plot_comms[[i]] 
   thisone = thisone %>% 
     arrange(desc(sp_energy)) %>%

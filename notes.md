@@ -4,6 +4,9 @@ RMD 12.7.17
 * Trying to look at quasi feasible sets of rank-energy and rank-abundance distributions, working with NEON small mammal data.
 * Do simulated communities with the same N, S, and E as real communities have comparable rank-abundance and rank-energy distributions?
 * Inspired by a feasible set approach, and trying to deal with the conflict between combinatorics and continuous data (biomass, energy use)
+  * **this isn't really feasible sets!**
+  
+
 
 ## Approach
 * For potentially many NEON sites (code is general)...
